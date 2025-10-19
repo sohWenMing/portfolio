@@ -5,5 +5,10 @@ type CSRFKeyData struct {
 	KeyBytes  []byte
 }
 
-func GetCSRFKey() {
+type csrfEnvGetter interface {
+	GetCSRFKey() CSRFKeyData
+}
+
+func GetCSRFKey(c csrfEnvGetter) []byte {
+	return c.GetCSRFKey().KeyBytes
 }
