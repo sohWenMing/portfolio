@@ -28,6 +28,7 @@ func LoadCSRFMW(envPath string, envGetter CsrfEnvGetter) func(next http.Handler)
 				"128.199.244.100",
 			},
 		),
+		csrf.Secure(false),
 	)
 	return csrf
 }
