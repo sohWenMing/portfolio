@@ -1,0 +1,6 @@
+:80 {
+    reverse_proxy server:3000
+}
+:443 {
+    reverse_proxy server:3000
+}

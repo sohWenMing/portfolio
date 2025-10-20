@@ -2,26 +2,32 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
-	"github.com/sohWenMing/portfolio/internal/contextkeys"
-	"github.com/sohWenMing/portfolio/internal/views/templating"
+	"github.com/gorilla/csrf"
 )
 
-func TestHandler(w http.ResponseWriter, r *http.Request) {
-	csrfToken := r.Context().Value(contextkeys.CSRFTokenKey)
-	//TODO: replace println with actual logging function
-	if csrfToken == "" {
-		fmt.Println("csrfToken could not be found")
-		http.Error(w, "Internal Error", http.StatusInternalServerError)
-		return
-	} else {
-		fmt.Println("token in TestHandler: ", csrfToken)
+type TemplateExecutor interface {
+	ExecuteTemplateWithCSRF(w http.ResponseWriter, r *http.Request, csrfField template.HTML, baseTemplate string, data any)
+}
+
+func TestHandler(tplExecutor TemplateExecutor) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		templateField := csrf.TemplateField(r)
+		fmt.Println("templateField: ", templateField)
+		// csrfToken := r.Context().Value(contextkeys.CSRFTokenKey)
+		// csrfField := fmt.Sprintf("<input type=hidden name=csrfField value=%s", csrfToken)
+		// csrfFieldHTML := template.HTML(csrfField)
+		//TODO: replace println with actual logging function
+
+		// if csrfToken == "" {
+		// 	fmt.Println("csrfToken could not be found")
+		// 	http.Error(w, "Internal Error", http.StatusInternalServerError)
+		// 	return
+		// } else {
+		// 	fmt.Println("token in TestHandler: ", csrfToken)
+		// }
+		tplExecutor.ExecuteTemplateWithCSRF(w, r, csrf.TemplateField(r), "main_template.gohtml", nil)
 	}
-	tpl, err := templating.GetTestHTMLTemplate()
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	tpl.Execute(w, nil)
 }

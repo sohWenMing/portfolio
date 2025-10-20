@@ -1,14 +1,32 @@
 package csfr_protect
 
+import (
+	"net/http"
+
+	"github.com/gorilla/csrf"
+)
+
 type CSRFKeyData struct {
 	KeyString string
 	KeyBytes  []byte
 }
 
-type csrfEnvGetter interface {
+type CsrfEnvGetter interface {
 	GetCSRFKey() CSRFKeyData
 }
 
-func GetCSRFKey(c csrfEnvGetter) []byte {
+func GetCSRFKey(c CsrfEnvGetter) []byte {
 	return c.GetCSRFKey().KeyBytes
+}
+
+func LoadCSRFMW(envPath string, envGetter CsrfEnvGetter) func(next http.Handler) http.Handler {
+	csrf := csrf.Protect(
+		GetCSRFKey(envGetter),
+		csrf.TrustedOrigins(
+			[]string{
+				"localhost:3000",
+			},
+		),
+	)
+	return csrf
 }
