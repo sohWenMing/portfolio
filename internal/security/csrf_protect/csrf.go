@@ -25,6 +25,7 @@ func LoadCSRFMW(envPath string, envGetter CsrfEnvGetter) func(next http.Handler)
 		csrf.TrustedOrigins(
 			[]string{
 				"localhost:3000",
+				"128.199.244.100",
 			},
 		),
 	)
