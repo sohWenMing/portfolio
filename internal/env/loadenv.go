@@ -3,6 +3,7 @@ package loadenv
 import (
 	"encoding/base64"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	csrfProtect "github.com/sohWenMing/portfolio/internal/security/csrf_protect"
@@ -20,6 +21,12 @@ func (*EnvGetter) GetCSRFKey() csrfProtect.CSRFKeyData {
 		KeyString: csrfKey,
 		KeyBytes:  decoded,
 	}
+}
+
+func (*EnvGetter) GetTrustedOrigins() []string {
+	trustedOrigins := os.Getenv("CSRFTRUSTEDORIGINS")
+	trustedOriginsSlice := strings.Split(trustedOrigins, "|")
+	return trustedOriginsSlice
 }
 
 func LoadEnv(envPath string) (getter *EnvGetter, err error) {
