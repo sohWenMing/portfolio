@@ -40,5 +40,13 @@ func TestGetCSRFTrustedOrigins(t *testing.T) {
 	if !reflect.DeepEqual(csrfTrustedOrigins, expected) {
 		t.Errorf("got %v\nwant %v", csrfTrustedOrigins, expected)
 	}
+}
 
+func TestGetDBString(t *testing.T) {
+	expected := "host=localhost dbname=portfoliodb user=nindgabeet password=Holoq123holoq123 sslmode=disable"
+	dbConfig := envGetter.GetDBConfig(true)
+	dbString := dbConfig.DBString()
+	if expected != dbString {
+		t.Errorf("got %s\nwant %s \n", dbString, expected)
+	}
 }

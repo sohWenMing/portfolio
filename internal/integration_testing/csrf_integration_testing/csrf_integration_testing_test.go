@@ -12,6 +12,7 @@ import (
 
 var envGetter *loadenv.EnvGetter
 
+// loads the envGetter into a global variable, to be used across all tests
 func TestMain(m *testing.M) {
 	cwd, err := os.Getwd()
 	if err != nil {
