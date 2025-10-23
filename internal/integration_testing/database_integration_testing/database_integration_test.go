@@ -28,12 +28,12 @@ func TestMain(m *testing.M) {
 }
 
 func TestInitDB(t *testing.T) {
-	db, err := dbinfra.InitDB(envGetter.GetDBConfig(true))
+	appDB, err := dbinfra.InitDB(envGetter.GetDBConfig(true))
 	if err != nil {
 		t.Errorf("didn't expect error, got %v", err)
 		return
 	}
-	err = db.Close()
+	err = appDB.DB.Close()
 	if err != nil {
 		t.Errorf("didn't expect error, got %v", err)
 		return

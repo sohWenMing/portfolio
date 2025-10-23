@@ -1,22 +1,42 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/base64"
+	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
-	randBytes := make([]byte, 32)
-	_, err := rand.Read(randBytes)
-	if err != nil {
-		fmt.Println("error occured: ", err)
+	srv := http.Server{
+		Addr:    ":8000",
+		Handler: http.HandlerFunc(TestHandler),
 	}
-	encoded := base64.StdEncoding.EncodeToString(randBytes)
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		fmt.Println("error occured: ", err)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		fmt.Println("listening on port 8000")
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Printf("error occured in server: %v", err)
+		}
+	}()
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		fmt.Printf("error on server shutdown: %v", err)
+	} else {
+		fmt.Println("server shutdown gracefully.")
 	}
-	fmt.Println("encoded", encoded)
-	fmt.Println("length of decoded: ", len(decoded))
+
+}
+
+func TestHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Able to receive on port 8000"))
 }
