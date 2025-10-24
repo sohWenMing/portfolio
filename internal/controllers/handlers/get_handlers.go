@@ -31,3 +31,8 @@ func TestHandler(tplExecutor TemplateExecutor) func(w http.ResponseWriter, r *ht
 		tplExecutor.ExecuteTemplateWithCSRF(w, r, csrf.TemplateField(r), "main_template.gohtml", nil)
 	}
 }
+
+func TestPing(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ping successful"))
+}

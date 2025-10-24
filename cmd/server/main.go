@@ -43,7 +43,7 @@ func main() {
 	go func() {
 		fmt.Println("listening on port: ", portAddr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Println("server error: %v", err)
+			fmt.Printf("server error: %v", err)
 		}
 	}()
 
