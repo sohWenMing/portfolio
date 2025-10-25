@@ -37,6 +37,19 @@ func (q *Queries) DeleteUserById(ctx context.Context, id int64) error {
 	return err
 }
 
+const getEmailCountByEmail = `-- name: GetEmailCountByEmail :one
+SELECT COUNT(users.id)
+  FROM users
+WHERE UPPER(users.email) = UPPER($1)
+`
+
+func (q *Queries) GetEmailCountByEmail(ctx context.Context, upper interface{}) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getEmailCountByEmail, upper)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getUserDetailsById = `-- name: GetUserDetailsById :one
 SELECT users.id, users.email, users.hashed_password
   FROM users

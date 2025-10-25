@@ -17,6 +17,14 @@ type UserDetails struct {
 	HashedPassword string
 }
 
+// UserService interface unified all CRUD operations that are tied to a user operations
+type UserService interface {
+	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
+	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
+	DeleteUserById(ctx context.Context, id int64) error
+	GetEmailCountByEmail(ctx context.Context, email string) (int64, error)
+}
+
 // Interface to allow database wrapper function with CreateUser method to fulfil interface and be used
 type UserCreater interface {
 	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
