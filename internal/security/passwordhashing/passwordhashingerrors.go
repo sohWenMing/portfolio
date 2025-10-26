@@ -1,6 +1,7 @@
 package passwordhashing
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 
@@ -25,6 +26,8 @@ func GetErrPasswordTooLong(password string) error {
 	return fmt.Errorf("%s does not match the one listen ir credentials %w", password, ErrPasswordTooLong)
 }
 
+var CorruptInputErr = errors.New("There was a problem with operation. Please check password, and re enter")
+
 func HandlePasswordHashingError(password string, err error) error {
 	if errors.Is(err, bcrypt.ErrHashTooShort) {
 		return GetErrorPasswordTooShort(password)
@@ -34,6 +37,10 @@ func HandlePasswordHashingError(password string, err error) error {
 	}
 	if errors.Is(err, bcrypt.ErrPasswordTooLong) {
 		return GetErrPasswordTooLong(password)
+	}
+	var b64Err base64.CorruptInputError
+	if errors.As(err, &b64Err) {
+		return CorruptInputErr
 	}
 	return err
 }

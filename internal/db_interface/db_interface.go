@@ -1,6 +1,10 @@
 package dbinterface
 
-import "context"
+import (
+	"context"
+
+	postgressqlcgenerated "github.com/sohWenMing/portfolio/internal/db_infra/postgres_sqlc_generated"
+)
 
 // Interface type to be imported into database modules, has to be arg input param of the CreateUser
 // method that allows object to fulfil UserCreater interface
@@ -23,6 +27,42 @@ type UserService interface {
 	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
 	DeleteUserById(ctx context.Context, id int64) error
 	GetEmailCountByEmail(ctx context.Context, email string) (int64, error)
+}
+
+type PGUserService struct {
+	queries *postgressqlcgenerated.Queries
+}
+
+func (p *PGUserService) CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error) {
+	id, err := p.queries.CreateUser(ctx, postgressqlcgenerated.CreateUserParams{
+		Email:          arg.Email,
+		HashedPassword: arg.HashedPassword,
+	})
+	return id, err
+}
+func (p *PGUserService) GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error) {
+	details, err := p.queries.GetUserDetailsById(ctx, id)
+	return UserDetails{
+		ID:             details.ID,
+		Email:          details.Email,
+		HashedPassword: details.HashedPassword,
+	}, err
+}
+
+func (p *PGUserService) DeleteUserById(ctx context.Context, id int64) error {
+	err := p.queries.DeleteUserById(ctx, id)
+	return err
+}
+
+func (p *PGUserService) GetEmailCountByEmail(ctx context.Context, email string) (int64, error) {
+	count, err := p.queries.GetEmailCountByEmail(ctx, email)
+	return count, err
+}
+
+func InitUserServiceWithPostgres(dbtx postgressqlcgenerated.DBTX) *PGUserService {
+	return &PGUserService{
+		queries: postgressqlcgenerated.New(dbtx),
+	}
 }
 
 // Interface to allow database wrapper function with CreateUser method to fulfil interface and be used
