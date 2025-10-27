@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"testing"
 
 	dbinfra "github.com/sohWenMing/portfolio/internal/db_infra"
+	"github.com/sohWenMing/portfolio/internal/security/passwordhashing"
 )
 
 var appDb *dbinfra.AppDB
@@ -18,7 +20,6 @@ func TestMain(m *testing.M) {
 	}
 	appDb = returnedAppDB
 	appServices = returnedServices
-	fmt.Println("appservices: ", appServices)
 	exitCode := m.Run()
 	err = appDb.DB.Close()
 	if err != nil {
@@ -49,6 +50,7 @@ func TestGetUserDetails(t *testing.T) {
 		createdPassword   string
 		attemptedPassword string
 		isErrExpected     bool
+		expectedError     error
 	}
 
 	tests := []test{
@@ -58,6 +60,15 @@ func TestGetUserDetails(t *testing.T) {
 			"Holoq123holoq123",
 			"Holoq123holoq123",
 			false,
+			nil,
+		},
+		{
+			"basic test, should pass",
+			"wenming.soh@gmail.com",
+			"Holoq123holoq123",
+			"fail",
+			true,
+			passwordhashing.ErrInvalidPassword,
 		},
 	}
 
@@ -77,6 +88,37 @@ func TestGetUserDetails(t *testing.T) {
 			test.attemptedPassword,
 			details.HashedPassword,
 		)
+		switch test.isErrExpected {
+		case true:
+			verifyErr := verifyError(err, test.expectedError)
+			if verifyErr != nil {
+				t.Errorf("didn't expect error on verify error, got %v", err)
+				return
+			}
+		case false:
+			if err != nil {
+				t.Errorf("didn't expect error, got %v", err)
+				return
+			}
+		}
+		err = appServices.userservice.DeleteUserById(id)
+		if err != nil {
+			t.Errorf("didn't expect error, got %v", err)
+			return
+		}
+	}
+}
 
+func verifyError(input error, expected error) error {
+	errorToUnwrap := input
+	for {
+		if errors.Is(errorToUnwrap, expected) {
+			return nil
+		}
+		if errors.Unwrap(errorToUnwrap) == nil {
+			return fmt.Errorf(
+				"input error is not and does not wrap expected error\ngot %v want %v", input, expected)
+		}
+		errorToUnwrap = errors.Unwrap(errorToUnwrap)
 	}
 }

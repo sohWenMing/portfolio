@@ -17,13 +17,13 @@ func GetErrorPasswordTooShort(password string) error {
 var ErrInvalidPassword = errors.New("password does not match the one listed in credentials")
 
 func GetErrInvalidPassword(password string) error {
-	return fmt.Errorf("%s does not match the one listen in credentials %w", password, ErrInvalidPassword)
+	return fmt.Errorf("%s does not match the one listed in credentials %w", password, ErrInvalidPassword)
 }
 
 var ErrPasswordTooLong = errors.New("password entered is too long")
 
 func GetErrPasswordTooLong(password string) error {
-	return fmt.Errorf("%s does not match the one listen ir credentials %w", password, ErrPasswordTooLong)
+	return fmt.Errorf("%s is too long to be a valid password %w", password, ErrPasswordTooLong)
 }
 
 var CorruptInputErr = errors.New("There was a problem with operation. Please check password, and re enter")
