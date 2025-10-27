@@ -27,14 +27,17 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, 
 	return id, err
 }
 
-const deleteUserById = `-- name: DeleteUserById :exec
+const deleteUserById = `-- name: DeleteUserById :execrows
 DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUserById(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteUserById, id)
-	return err
+func (q *Queries) DeleteUserById(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteUserById, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const getEmailCountByEmail = `-- name: GetEmailCountByEmail :one

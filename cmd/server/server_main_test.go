@@ -1,12 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 
 	dbinfra "github.com/sohWenMing/portfolio/internal/db_infra"
+	dbinterface "github.com/sohWenMing/portfolio/internal/db_interface"
 	"github.com/sohWenMing/portfolio/internal/security/passwordhashing"
 )
 
@@ -36,9 +39,15 @@ func TestCreateUser(t *testing.T) {
 		t.Errorf("didn't expect error, got %v", err)
 		return
 	}
-	err = appServices.userservice.DeleteUserById(id)
+	numrows, err := appServices.userservice.DeleteUserById(id)
 	if err != nil {
 		t.Errorf("didn't expect error, got %v", err)
+		unwrapAndPrintError(err)
+		return
+	}
+	numRowsExpectDeleted := 1
+	if numrows != int64(numRowsExpectDeleted) {
+		t.Errorf("got %d\nwant %d", numrows, numRowsExpectDeleted)
 		return
 	}
 }
@@ -101,11 +110,43 @@ func TestGetUserDetails(t *testing.T) {
 				return
 			}
 		}
-		err = appServices.userservice.DeleteUserById(id)
+		numrows, err := appServices.userservice.DeleteUserById(id)
 		if err != nil {
 			t.Errorf("didn't expect error, got %v", err)
 			return
 		}
+		numRowsExpectDeleted := 1
+		if numrows != int64(numRowsExpectDeleted) {
+			t.Errorf("got %d\nwant %d", numrows, numRowsExpectDeleted)
+			return
+		}
+	}
+}
+
+func TestGetNonExistentUser(t *testing.T) {
+	expectedErr := sql.ErrNoRows
+	details, err := appServices.userservice.GetUserDetailsById(0)
+
+	if !errors.Is(err, expectedErr) {
+		t.Errorf("expected %v\n got %v", err, expectedErr)
+	}
+	if !reflect.DeepEqual(details, dbinterface.UserDetails{}) {
+		t.Errorf("got %v\n want %v", details, dbinterface.UserDetails{})
+	}
+}
+
+func TestDeleteNonExistentUser(t *testing.T) {
+
+	numrows, err := appServices.userservice.DeleteUserById(0)
+	if err != nil {
+		t.Errorf("didn't expect error, got %v", err)
+		unwrapAndPrintError(err)
+		return
+	}
+	numRowsExpectDeleted := 0
+	if numrows != int64(numRowsExpectDeleted) {
+		t.Errorf("got %d\nwant %d", numrows, numRowsExpectDeleted)
+		return
 	}
 }
 
@@ -120,5 +161,21 @@ func verifyError(input error, expected error) error {
 				"input error is not and does not wrap expected error\ngot %v want %v", input, expected)
 		}
 		errorToUnwrap = errors.Unwrap(errorToUnwrap)
+	}
+}
+
+func unwrapAndPrintError(err error) {
+	currErr := err
+	layer := 1
+	for {
+		fmt.Println("Error Layer: ", layer)
+		fmt.Printf("Error Type: %T\n", currErr)
+		fmt.Println("error: ", currErr)
+		if errors.Unwrap(currErr) == nil {
+			return
+		} else {
+			layer += 1
+			currErr = errors.Unwrap(err)
+		}
 	}
 }

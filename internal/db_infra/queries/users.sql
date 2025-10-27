@@ -8,7 +8,7 @@ INSERT INTO users(email, hashed_password)
 VALUES($1, $2)
 RETURNING id;
 
--- name: DeleteUserById :exec
+-- name: DeleteUserById :execrows
 DELETE FROM users
 WHERE id = $1;
 

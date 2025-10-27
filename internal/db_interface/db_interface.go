@@ -25,7 +25,7 @@ type UserDetails struct {
 type UserService interface {
 	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
 	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
-	DeleteUserById(ctx context.Context, id int64) error
+	DeleteUserById(ctx context.Context, id int64) (int64, error)
 	GetEmailCountByEmail(ctx context.Context, email string) (int64, error)
 }
 
@@ -49,9 +49,9 @@ func (p *PGUserService) GetUserDetailsById(ctx context.Context, id int64) (UserD
 	}, err
 }
 
-func (p *PGUserService) DeleteUserById(ctx context.Context, id int64) error {
-	err := p.queries.DeleteUserById(ctx, id)
-	return err
+func (p *PGUserService) DeleteUserById(ctx context.Context, id int64) (int64, error) {
+	numrows, err := p.queries.DeleteUserById(ctx, id)
+	return numrows, err
 }
 
 func (p *PGUserService) GetEmailCountByEmail(ctx context.Context, email string) (int64, error) {

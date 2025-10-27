@@ -46,7 +46,7 @@ func (us *UserService) GetUserDetailsById(id int64) (dbinterface.UserDetails, er
 	defer cancel()
 	details, err := us.dbService.GetUserDetailsById(ctx, id)
 	if err != nil {
-		return dbinterface.UserDetails{}, nil
+		return dbinterface.UserDetails{}, err
 	}
 	return details, nil
 }
@@ -75,15 +75,11 @@ func (us *UserService) CreateUser(email, password string) (id int64, err error) 
 	}
 	return userId, err
 }
-func (us *UserService) DeleteUserById(id int64) error {
+func (us *UserService) DeleteUserById(id int64) (int64, error) {
 	ctx, cancel := us.CreateTimeoutContext()
 	defer cancel()
-	err := us.dbService.DeleteUserById(ctx, id)
-	if err != nil {
-		//TODO: centralise to logging function
-		return err
-	}
-	return nil
+	numrows, err := us.dbService.DeleteUserById(ctx, id)
+	return numrows, err
 }
 
 func (us *UserService) checkEmailAlreadyInUse(email string) error {
