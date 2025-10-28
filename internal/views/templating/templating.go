@@ -9,7 +9,7 @@ import (
 )
 
 var templatesToParse []string = []string{
-	"main_template.gohtml",
+	"create_user_form.gohtml",
 }
 
 type TemplateExecutor struct {

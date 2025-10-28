@@ -28,7 +28,7 @@ func TestHandler(tplExecutor TemplateExecutor) func(w http.ResponseWriter, r *ht
 		// } else {
 		// 	fmt.Println("token in TestHandler: ", csrfToken)
 		// }
-		tplExecutor.ExecuteTemplateWithCSRF(w, r, csrf.TemplateField(r), "main_template.gohtml", nil)
+		tplExecutor.ExecuteTemplateWithCSRF(w, r, csrf.TemplateField(r), "create_user_form.gohtml", nil)
 	}
 }
 

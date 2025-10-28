@@ -21,6 +21,7 @@ var appDb *dbinfra.AppDB
 var appServices *integration.Services
 var server *http.Server
 var addr = ":8000"
+var client = http.DefaultClient
 
 func TestMain(m *testing.M) {
 	returnedAppDB, handler, returnedServices, err := integration.Run(true, "../../../.env")
@@ -59,7 +60,6 @@ func TestMain(m *testing.M) {
 
 func testPing() {
 	curCount := 1
-	client := http.DefaultClient
 	for i := curCount; i <= 5; i++ {
 		fmt.Println("current count in testPing: ", curCount)
 		err := ping(client)
@@ -72,6 +72,11 @@ func testPing() {
 }
 
 func ping(client *http.Client) error {
+	_, err := callRootHandler(client)
+	return err
+}
+
+func callRootHandler(client *http.Client) (*http.Response, error) {
 	req, err := http.NewRequest("GET", "http://localhost:8000", nil)
 	if err != nil {
 		panic(err)
@@ -79,9 +84,9 @@ func ping(client *http.Client) error {
 	res, err := client.Do(req)
 	if err == nil && res.StatusCode == 200 {
 		fmt.Println("Setup was ok: ping to server got status code 200")
-		return nil
+		return res, nil
 	}
-	return err
+	return nil, err
 }
 
 func TestCreateUser(t *testing.T) {

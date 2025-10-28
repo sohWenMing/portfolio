@@ -55,7 +55,7 @@ func Run(isTestingDBLocally bool, envPath string) (
 	handler = csrfMW(handler)
 	// r.Use(csrfmiddleware.CSRFMWGetToken)
 	r.Get("/", handlers.TestHandler(tplExecutor))
-	r.Post("/", handlers.TestReceiveFormHandler)
+	r.Post("/create_user", handlers.TestReceiveFormHandler)
 	return appDb, handler, returnedServices, nil
 }
 func loadEnvGetter(envPath string) (*loadenv.EnvGetter, error) {
