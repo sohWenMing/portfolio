@@ -31,12 +31,12 @@ func (u *UserService) GetUserDetailsById(ctx context.Context, id int64) (dbinter
 	}
 	return dbinterface.UserDetails(userDetails), nil
 }
-func (u *UserService) DeleteUserById(ctx context.Context, id int64) error {
-	err := u.queries.DeleteUserById(ctx, id)
+func (u *UserService) DeleteUserById(ctx context.Context, id int64) (int64, error) {
+	numRows, err := u.queries.DeleteUserById(ctx, id)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return numRows, nil
 }
 
 func InitDBServices(db *sql.DB) *DBServices {

@@ -19,7 +19,7 @@ func GetCSRFKey(c CsrfEnvGetter) []byte {
 	return c.GetCSRFKey().KeyBytes
 }
 
-func LoadCSRFMW(envPath string, envGetter CsrfEnvGetter) func(next http.Handler) http.Handler {
+func LoadCSRFMW(envGetter CsrfEnvGetter) func(next http.Handler) http.Handler {
 	csrf := csrf.Protect(
 		GetCSRFKey(envGetter),
 		csrf.TrustedOrigins(

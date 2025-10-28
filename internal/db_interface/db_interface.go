@@ -29,6 +29,28 @@ type UserService interface {
 	GetEmailCountByEmail(ctx context.Context, email string) (int64, error)
 }
 
+// Interface to allow database wrapper function with CreateUser and GetUserDetailsById methods
+// to fulfil interface and be used
+type UserCreaterGetter interface {
+	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
+	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
+}
+
+// Interface to allow database wrapper function with CreateUser method to fulfil interface and be used
+type UserCreater interface {
+	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
+}
+
+// Interface to allow database wrapper function with GetUserDetaislById method to fulfil interface and be used
+type UserDetailGetter interface {
+	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
+}
+
+// Interface that allows database wrapper function with DeleteUserById method to fulfil interface and be used
+type UserDeleter interface {
+	DeleteUserById(ctx context.Context, id int64) (int64, error)
+}
+
 type PGUserService struct {
 	queries *postgressqlcgenerated.Queries
 }
@@ -63,19 +85,4 @@ func InitUserServiceWithPostgres(dbtx postgressqlcgenerated.DBTX) *PGUserService
 	return &PGUserService{
 		queries: postgressqlcgenerated.New(dbtx),
 	}
-}
-
-// Interface to allow database wrapper function with CreateUser method to fulfil interface and be used
-type UserCreater interface {
-	CreateUser(ctx context.Context, arg CreateUserInterfaceParams) (int64, error)
-}
-
-// Interface to allow database wrapper function with GetUserDetaislById method to fulfil interface and be used
-type UserDetailGetter interface {
-	GetUserDetailsById(ctx context.Context, id int64) (UserDetails, error)
-}
-
-// Interface that allows database wrapper function with DeleteUserById method to fulfil interface and be used
-type UserDeleter interface {
-	DeleteUserById(ctx context.Context, id int64) error
 }
