@@ -23,6 +23,40 @@ Should be thought of as:
 - rebuild the server
 - restart the server as a daemon (in the background) checking for sigterm sent to the process run by the server binary
 
+# Setting Up Of the Environment
+
+## In Development
+
+Before starting up the server, which can be started by running the **modd** command within the root of the project:
+
+- ensure that the database is started up, using the command
+
+```
+docker compose -f docker-compose-base.yml up
+
+```
+
+- ensure that DBHOST is set to "localhost" in the .env file
+
+run command
+
+```
+modd
+```
+
+## When Deploying to Prod, or Testing before pushing to prod
+
+- ensure that the DBHOST is set to "db" in the .env file
+- the actual application should be run through docker compose with all dependencies
+
+```
+docker compose \
+-f docker-compose-base.yml \
+-f docker-compose-prod-override.yml \
+up --build
+
+```
+
 # Project Structure
 
 ### /CMD
